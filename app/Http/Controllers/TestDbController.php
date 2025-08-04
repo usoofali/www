@@ -35,45 +35,61 @@ class TestDbController extends Controller
     }
 
     public function testSqlite()
-    {
-        $db_file = session('env.DB_DATABASE');
-        if (!$db_file) {
-            return response()->json([
-                'Error' => 'No SQLite database file specified',
-                'State' => '999',
-            ]);
-        }
-        // Check if file exists and is readable
-        $db_path = base_path($db_file);
-        if (!file_exists($db_path)) {
-            // Try to create the file and its parent directory if needed
-            $dir = dirname($db_path);
-            if (!is_dir($dir)) {
-                mkdir($dir, 0777, true);
-            }
-            touch($db_path);
-        }
-        if (!is_readable($db_path)) {
-            return response()->json([
-                'Error' => 'SQLite database file is not readable: ' . $db_file,
-                'State' => '999',
-            ]);
-        }
-        try {
-            $db = new PDO('sqlite:' . base_path($db_file));
-            $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $db->query('SELECT 1');
-        } catch (PDOException $e) {
-            return response()->json([
-                'Error' => $e->getMessage(),
-                'State' => $e->getCode(),
-            ]);
-        }
+{
+    $db_file = session('env.DB_DATABASE');
+    if (!$db_file) {
         return response()->json([
-            'State' => '200',
-            'Success' => 'SQLite database connection successful',
-        ]);
+            'Error' => 'No SQLite database file specified',
+            'State' => '999',
+        ], 400); // Added proper HTTP status code
     }
+
+    // Check if file exists and is readable
+    $db_path = database_path($db_file); // Changed from base_path to database_path for better practice
+    if (!file_exists($db_path)) {
+        // Try to create the file and its parent directory if needed
+        $dir = dirname($db_path);
+        if (!is_dir($dir)) {
+            if (!mkdir($dir, 0777, true)) { // Check if directory creation failed
+                return response()->json([
+                    'Error' => 'Failed to create directory for SQLite database',
+                    'State' => '999',
+                ], 500);
+            }
+        }
+        if (!touch($db_path)) { // Check if file creation failed
+            return response()->json([
+                'Error' => 'Failed to create SQLite database file',
+                'State' => '999',
+            ], 500);
+        }
+        // Set proper permissions
+        chmod($db_path, 0666);
+    }
+
+    if (!is_readable($db_path) || !is_writable($db_path)) { // Added writable check
+        return response()->json([
+            'Error' => 'SQLite database file is not readable/writable: ' . $db_file,
+            'State' => '999',
+        ], 403); // Proper HTTP status for permission issues
+    }
+
+    try {
+        $db = new PDO('sqlite:' . $db_path);
+        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $db->query('SELECT 1')->fetch(); // Added fetch() to actually execute the query
+    } catch (PDOException $e) {
+        return response()->json([
+            'Error' => $e->getMessage(),
+            'State' => $e->getCode(),
+        ], 500); // Proper HTTP status for server errors
+    }
+
+    return response()->json([
+        'State' => '200',
+        'Success' => 'SQLite database connection successful',
+    ]);
+}
 
     public function testMySql()
     {

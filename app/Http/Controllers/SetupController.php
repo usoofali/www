@@ -162,7 +162,7 @@ class SetupController extends Controller
             Artisan::call('migrate', ['--force' => true, '--path' => 'vendor/laravel/passport/database/migrations']);
             Artisan::call('passport:install --force');
             Storage::disk('public')->put('installed', 'Contents');
-
+            
             
         } catch (\Exception $e) {
             
