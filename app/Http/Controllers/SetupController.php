@@ -79,18 +79,21 @@ class SetupController extends Controller
     public function viewStep2()
     {
 
-        if (config("database.default") == 'mysql') {
+        $dbtype = session('env.DB_CONNECTION') ? session('env.DB_CONNECTION') : config('database.default');
+        $db = [];
+        if ($dbtype == 'mysql') {
             $db = config('database.connections.mysql');
-
+        } elseif ($dbtype == 'sqlite') {
+            $db = config('database.connections.sqlite');
         }
 
         $data = array(
-            "DB_CONNECTION" => session('env.DB_CONNECTION') ? session('env.DB_CONNECTION') : config("database.default"),
-            "DB_HOST" => session('env.DB_HOST') ? session('env.DB_HOST') : (isset($db['host']) ? $db['host'] : ''),
-            "DB_PORT" => session('env.DB_PORT') ? session('env.DB_PORT') : (isset($db['port']) ? $db['port'] : ''),
+            "DB_CONNECTION" => $dbtype,
+            "DB_HOST" => $dbtype == 'mysql' ? (session('env.DB_HOST') ? session('env.DB_HOST') : (isset($db['host']) ? $db['host'] : '')) : '',
+            "DB_PORT" => $dbtype == 'mysql' ? (session('env.DB_PORT') ? session('env.DB_PORT') : (isset($db['port']) ? $db['port'] : '')) : '',
             "DB_DATABASE" => session('env.DB_DATABASE') ? session('env.DB_DATABASE') : (isset($db['database']) ? $db['database'] : ''),
-            "DB_USERNAME" => session('env.DB_USERNAME') ? session('env.DB_USERNAME') : (isset($db['username']) ? $db['username'] : ''),
-            "DB_PASSWORD" => session('env.DB_PASSWORD') ? str_replace('"', '', session('env.DB_PASSWORD')) : (isset($db['password']) ? str_replace('"', '', $db['password']) : ''),
+            "DB_USERNAME" => $dbtype == 'mysql' ? (session('env.DB_USERNAME') ? session('env.DB_USERNAME') : (isset($db['username']) ? $db['username'] : '')) : '',
+            "DB_PASSWORD" => $dbtype == 'mysql' ? (session('env.DB_PASSWORD') ? str_replace('"', '', session('env.DB_PASSWORD')) : (isset($db['password']) ? str_replace('"', '', $db['password']) : '')) : '',
         );
 
         return view('setup.step2', ["data" => $data]);
@@ -98,45 +101,35 @@ class SetupController extends Controller
 
     public function viewStep3()
     {
-        $dbtype = null;
-
-        if (session('env.DB_CONNECTION') == null) {
-            $dbtype = config("database.default");
-        } else {
-            $dbtype = session('env.DB_CONNECTION');
-        }
-
+        $dbtype = session('env.DB_CONNECTION') ? session('env.DB_CONNECTION') : config('database.default');
+        $db = [];
         if ($dbtype == 'mysql') {
             $db = config('database.connections.mysql');
-
+        } elseif ($dbtype == 'sqlite') {
+            $db = config('database.connections.sqlite');
         }
 
         $dbDatabase = session('env.DB_DATABASE');
 
         $data = array(
-
             "APP_NAME" => str_replace('"', '', session('env.APP_NAME')) == str_replace('"', '', config('app.name')) ? 'old' : str_replace('"', '', session('env.APP_NAME')),
             "APP_ENV" => session('env.APP_ENV') == config('app.env') ? 'old' : session('APP_ENV'),
             "APP_DEBUG" => session('env.APP_DEBUG') == config('app.debug') ? 'old' : session('env.APP_DEBUG'),
             "APP_KEY" => session('env.APP_KEY') == config('app.key') ? 'old' : session('env.APP_KEY'),
             "DB_CONNECTION" => session('env.DB_CONNECTION') == config("database.default") ? 'old' : session('env.DB_CONNECTION'),
-            "DB_HOST" => session('env.DB_HOST') == (isset($db['host']) ? $db['host'] : '') ? 'old' : session('env.DB_HOST'),
-            "DB_PORT" => session('env.DB_PORT') == (isset($db['port']) ? $db['port'] : '') ? 'old' : session('env.DB_PORT'),
+            "DB_HOST" => $dbtype == 'mysql' ? (session('env.DB_HOST') == (isset($db['host']) ? $db['host'] : '') ? 'old' : session('env.DB_HOST')) : '',
+            "DB_PORT" => $dbtype == 'mysql' ? (session('env.DB_PORT') == (isset($db['port']) ? $db['port'] : '') ? 'old' : session('env.DB_PORT')) : '',
             "DB_DATABASE" => $dbDatabase == (isset($db['database']) ? $db['database'] : '') ? 'old' : session('env.DB_DATABASE'),
-            "DB_USERNAME" => session('env.DB_USERNAME') == (isset($db['username']) ? $db['username'] : '') ? 'old' : session('env.DB_USERNAME'),
-            "DB_PASSWORD" => str_replace('"', '', session('env.DB_PASSWORD')) == (isset($db['password']) ? str_replace('"', '', $db['password']) : '') ? 'old' : str_replace('"', '', session('env.DB_PASSWORD')),
-
+            "DB_USERNAME" => $dbtype == 'mysql' ? (session('env.DB_USERNAME') == (isset($db['username']) ? $db['username'] : '') ? 'old' : session('env.DB_USERNAME')) : '',
+            "DB_PASSWORD" => $dbtype == 'mysql' ? (str_replace('"', '', session('env.DB_PASSWORD')) == (isset($db['password']) ? str_replace('"', '', $db['password']) : '') ? 'old' : str_replace('"', '', session('env.DB_PASSWORD'))) : '',
         );
 
         $count = 0;
-
         foreach ($data as $mydata) {
-
             $mydata !== 'old' ? $count++ : false;
         }
 
         $view = view('setup.step3', compact('data'));
-
         return $view;
     }
 
@@ -223,7 +216,8 @@ class SetupController extends Controller
         // $request->session()->put('env.DB_PASSWORD', $request->db_password);
 
         if ($request->db_connection == 'sqlite') {
-            TestDbController::testSqLite();
+            $testDbController = new TestDbController();
+            $testDbController->testSqlite();
         }
 
         return $this->viewStep3();
