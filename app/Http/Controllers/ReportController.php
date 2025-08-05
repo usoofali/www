@@ -65,10 +65,10 @@ class ReportController extends BaseController
                     return $query->where('user_id', '=', Auth::user()->id);
                 }
             })
-            ->groupBy(DB::raw("DATE_FORMAT(date,'%Y-%m-%d')"))
+            ->groupBy(DB::raw("strftime('%Y-%m-%d', date) "))
             ->orderBy('date', 'asc')
             ->get([
-                DB::raw(DB::raw("DATE_FORMAT(date,'%Y-%m-%d') as date")),
+                DB::raw(DB::raw("strftime('%Y-%m-%d', date)  as date")),
                 DB::raw('SUM(GrandTotal) AS count'),
             ])
             ->pluck('count', 'date');
@@ -112,10 +112,10 @@ class ReportController extends BaseController
                     return $query->where('user_id', '=', Auth::user()->id);
                 }
             })
-            ->groupBy(DB::raw("DATE_FORMAT(date,'%Y-%m-%d')"))
+            ->groupBy(DB::raw("strftime('%Y-%m-%d', date) "))
             ->orderBy('date', 'asc')
             ->get([
-                DB::raw(DB::raw("DATE_FORMAT(date,'%Y-%m-%d') as date")),
+                DB::raw(DB::raw("strftime('%Y-%m-%d', date)  as date")),
                 DB::raw('SUM(GrandTotal) AS count'),
             ])
             ->pluck('count', 'date');
@@ -206,10 +206,10 @@ class ReportController extends BaseController
                     return $query->where('user_id', '=', Auth::user()->id);
                 }
             })
-            ->groupBy(DB::raw("DATE_FORMAT(date,'%Y-%m-%d')"))
+            ->groupBy(DB::raw("strftime('%Y-%m-%d', date) "))
             ->orderBy('date', 'asc')
             ->get([
-                DB::raw(DB::raw("DATE_FORMAT(date,'%Y-%m-%d') as date")),
+                DB::raw(DB::raw("strftime('%Y-%m-%d', date)  as date")),
                 DB::raw('SUM(montant) AS count'),
             ])
             ->pluck('count', 'date');
@@ -220,10 +220,10 @@ class ReportController extends BaseController
                     return $query->where('user_id', '=', Auth::user()->id);
                 }
             })
-            ->groupBy(DB::raw("DATE_FORMAT(date,'%Y-%m-%d')"))
+            ->groupBy(DB::raw("strftime('%Y-%m-%d', date) "))
             ->orderBy('date', 'asc')
             ->get([
-                DB::raw(DB::raw("DATE_FORMAT(date,'%Y-%m-%d') as date")),
+                DB::raw(DB::raw("strftime('%Y-%m-%d', date)  as date")),
                 DB::raw('SUM(montant) AS count'),
             ])
             ->pluck('count', 'date');
@@ -234,10 +234,10 @@ class ReportController extends BaseController
                     return $query->where('user_id', '=', Auth::user()->id);
                 }
             })
-            ->groupBy(DB::raw("DATE_FORMAT(date,'%Y-%m-%d')"))
+            ->groupBy(DB::raw("strftime('%Y-%m-%d', date) "))
             ->orderBy('date', 'asc')
             ->get([
-                DB::raw(DB::raw("DATE_FORMAT(date,'%Y-%m-%d') as date")),
+                DB::raw(DB::raw("strftime('%Y-%m-%d', date)  as date")),
                 DB::raw('SUM(montant) AS count'),
             ])
             ->pluck('count', 'date');
@@ -248,10 +248,10 @@ class ReportController extends BaseController
                     return $query->where('user_id', '=', Auth::user()->id);
                 }
             })
-            ->groupBy(DB::raw("DATE_FORMAT(date,'%Y-%m-%d')"))
+            ->groupBy(DB::raw("strftime('%Y-%m-%d', date) "))
             ->orderBy('date', 'asc')
             ->get([
-                DB::raw(DB::raw("DATE_FORMAT(date,'%Y-%m-%d') as date")),
+                DB::raw(DB::raw("strftime('%Y-%m-%d', date)  as date")),
                 DB::raw('SUM(montant) AS count'),
             ])
             ->pluck('count', 'date');
@@ -262,10 +262,10 @@ class ReportController extends BaseController
                     return $query->where('user_id', '=', Auth::user()->id);
                 }
             })
-            ->groupBy(DB::raw("DATE_FORMAT(date,'%Y-%m-%d')"))
+            ->groupBy(DB::raw("strftime('%Y-%m-%d', date) "))
             ->orderBy('date', 'asc')
             ->get([
-                DB::raw(DB::raw("DATE_FORMAT(date,'%Y-%m-%d') as date")),
+                DB::raw(DB::raw("strftime('%Y-%m-%d', date)  as date")),
                 DB::raw('SUM(amount) AS count'),
             ])
             ->pluck('count', 'date');
@@ -1826,7 +1826,7 @@ class ReportController extends BaseController
             ->select(
                 DB::raw("count(DISTINCT products.id) as value"),
                 DB::raw("warehouses.name as name"),
-                DB::raw('(IFNULL(SUM(qte),0)) AS value1'),
+                DB::raw('COALESCE(SUM(qte),0) AS value1'),
             )
             ->where('qte', '>', 0)
             ->groupBy('warehouses.name')
