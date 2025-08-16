@@ -5,7 +5,7 @@ namespace App\Console;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use App\Http\Controllers\BaseController;
+use App\Services\SyncService;
 
 class Kernel extends ConsoleKernel
 {
@@ -29,6 +29,18 @@ class Kernel extends ConsoleKernel
     {
        
         $schedule->command('database:backup');
+        
+        // Sync every 15 minutes (adjust as needed)
+        $schedule->call(function () {
+            $syncService = app(SyncService::class);
+            $result = $syncService->sync();
+            
+            // Log results
+            \Log::info('Scheduled sync completed', [
+                'pull_success' => $result['pull']['success'],
+                'push_success' => $result['push']['success']
+            ]);
+        })->everyFifteenMinutes();
 
     }
 

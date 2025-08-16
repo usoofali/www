@@ -8,6 +8,7 @@ use Laravel\Passport\Console\InstallCommand;
 use Laravel\Passport\Console\KeysCommand;
 use Laravel\Passport\Passport;
 use Illuminate\Support\Facades\Schema;
+use App\Services\SyncService;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -19,7 +20,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->singleton(SyncService::class, function ($app) {
+            return new SyncService();
+        });
     }
 
     /**
@@ -36,5 +39,16 @@ class AppServiceProvider extends ServiceProvider
             ClientCommand::class,
             KeysCommand::class,
         ]);
+
+        // Auto-sync when app starts (only in console mode for PHPDesktop)
+        if ($this->app->runningInConsole()) {
+            $syncService = app(SyncService::class);
+            $syncResult = $syncService->sync();
+            
+            // Optional: Log sync result
+            if ($syncResult) {
+                \Log::info('Initial sync pull successful');
+            }
+        }
     }
 }

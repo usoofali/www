@@ -125,6 +125,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Logging Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure logging behavior for the application. You can enable/disable
+    | logging for specific features and set log levels.
+    |
+     */
+
+    'sync_logging_enabled' => env('SYNC_LOGGING_ENABLED', true),
+    'debug_logging_enabled' => env('DEBUG_LOGGING_ENABLED', false),
+    'error_logging_enabled' => env('ERROR_LOGGING_ENABLED', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Stripe Key
     |--------------------------------------------------------------------------
     |

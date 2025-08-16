@@ -146,7 +146,8 @@ class SalesController extends BaseController
             $data[] = $item;
         }
         
-        $stripe_key = config('app.STRIPE_KEY');
+        // $stripe_key = config('app.STRIPE_KEY');
+        $stripe_key = ''; // Stripe disabled
         $customers = client::where('deleted_at', '=', null)->get(['id', 'name']);
 
        //get warehouses assigned to user
@@ -285,7 +286,8 @@ class SalesController extends BaseController
                     if($request['amount'] > 0){
                         if($request->payment['Reglement'] == 'credit card'){
                             $Client = Client::whereId($request->client_id)->first();
-                            Stripe\Stripe::setApiKey(config('app.STRIPE_SECRET'));
+                            // Stripe\Stripe::setApiKey(config('app.STRIPE_SECRET'));
+                        // Stripe disabled
 
                             $PaymentWithCreditCard = PaymentWithCreditCard::where('customer_id' ,$request->client_id)->first();
                             if(!$PaymentWithCreditCard){
@@ -1098,10 +1100,10 @@ class SalesController extends BaseController
        }
 
         $clients = Client::where('deleted_at', '=', null)->get(['id', 'name']);
-        $stripe_key = config('app.STRIPE_KEY');
+        // $stripe_key = config('app.STRIPE_KEY');
 
         return response()->json([
-            'stripe_key' => $stripe_key,
+            'stripe_key' => '', // Stripe disabled
             'clients' => $clients,
             'warehouses' => $warehouses,
         ]);

@@ -1193,7 +1193,7 @@ import vueEasyPrint from "vue-easy-print";
 import VueBarcode from "vue-barcode";
 import FlagIcon from "vue-flag-icon";
 import Util from "./../../../utils";
-import { loadStripe } from "@stripe/stripe-js";
+// import { loadStripe } from "@stripe/stripe-js";
 export default {
   components: {
     vueEasyPrint,
@@ -1203,31 +1203,31 @@ export default {
   metaInfo: {
     title: "POS"
   },
-  data() {
-    return {
-      langs: [
-        "en",
-        "fr",
-        "ar",
-        "de",
-        "es",
-        "it",
-        "Ind",
-        "thai",
-        "tr_ch",
-        "sm_ch",
-        "tur",
-        "ru",
-        "hn",
-        "vn",
-        "kr",
-        "ba",
-        "br",
-      ],
-      stripe: {},
-      stripe_key: "",
-      cardElement: {},
-      paymentProcessing: false,
+        data() {
+        return {
+          langs: [
+            "en",
+            "fr",
+            "ar",
+            "de",
+            "es",
+            "it",
+            "Ind",
+            "thai",
+            "tr_ch",
+            "sm_ch",
+            "tur",
+            "ru",
+            "hn",
+            "vn",
+            "kr",
+            "ba",
+            "br",
+          ],
+          // stripe: {}, // Stripe disabled
+          // stripe_key: "", // Stripe disabled
+          // cardElement: {}, // Stripe disabled
+          paymentProcessing: false,
       payment: {
         amount: "",
         received_amount: "",
@@ -1359,15 +1359,14 @@ export default {
       this.$store.dispatch("logout");
     },
     async loadStripe_payment() {
-      this.stripe = await loadStripe(`${this.stripe_key}`);
-      const elements = this.stripe.elements();
-      this.cardElement = elements.create("card", {
-        classes: {
-          base:
-            "bg-gray-100 rounded border border-gray-300 focus:border-indigo-500 text-base outline-none text-gray-700 p-3 leading-8 transition-colors duration-200 ease-in-out"
-        }
-      });
-      this.cardElement.mount("#card-element");
+      // Stripe is temporarily disabled to prevent redirect issues
+      console.warn('Stripe is currently disabled. Credit card payments are not available.');
+      this.makeToast(
+        "warning",
+        "Credit card payments are temporarily disabled",
+        "Notice"
+      );
+      return;
     },
      handleFocus() {
       this.focused = true
@@ -1378,9 +1377,15 @@ export default {
     //---------------------- Event Select Payment Method ------------------------------\\
     Selected_PaymentMethod(value) {
       if (value == "credit card") {
-        setTimeout(() => {
-          this.loadStripe_payment();
-        }, 500);
+        // Credit card payments are temporarily disabled
+        this.makeToast(
+          "warning",
+          "Credit card payments are temporarily disabled",
+          "Notice"
+        );
+        // Reset payment method to cash
+        this.payment.Reglement = "Cash";
+        return;
       }
     },
     SetLocal(locale) {
@@ -1867,16 +1872,14 @@ export default {
       NProgress.start();
       NProgress.set(0.1);
       if (this.payment.Reglement == "credit card") {
-        if (this.stripe_key != "") {
-          this.processPayment();
-        } else {
-          this.makeToast(
-            "danger",
-            this.$t("credit_card_account_not_available"),
-            this.$t("Failed")
-          );
-          NProgress.done();
-        }
+        // Credit card payments are temporarily disabled
+        this.makeToast(
+          "warning",
+          "Credit card payments are temporarily disabled. Please use another payment method.",
+          "Notice"
+        );
+        NProgress.done();
+        return;
       } else {
         this.paymentProcessing = true;
         axios

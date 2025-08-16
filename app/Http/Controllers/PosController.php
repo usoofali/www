@@ -138,7 +138,8 @@ class PosController extends BaseController
                 if($request['amount'] > 0){
                     if ($request->payment['Reglement'] == 'credit card') {
                         $Client = Client::whereId($request->client_id)->first();
-                        Stripe\Stripe::setApiKey(config('app.STRIPE_SECRET'));
+                        // Stripe\Stripe::setApiKey(config('app.STRIPE_SECRET'));
+                        // Stripe disabled
 
                         $PaymentWithCreditCard = PaymentWithCreditCard::where('customer_id', $request->client_id)->first();
                         if (!$PaymentWithCreditCard) {
@@ -382,10 +383,10 @@ class PosController extends BaseController
         }
         $categories = Category::where('deleted_at', '=', null)->get(['id', 'name']);
         $brands = Brand::where('deleted_at', '=', null)->get();
-        $stripe_key = config('app.STRIPE_KEY');
+        // $stripe_key = config('app.STRIPE_KEY');
 
         return response()->json([
-            'stripe_key' => $stripe_key,
+            'stripe_key' => '', // Stripe disabled
             'brands' => $brands,
             'defaultWarehouse' => $defaultWarehouse,
             'defaultClient' => $defaultClient,

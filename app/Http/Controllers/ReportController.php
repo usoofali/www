@@ -3075,7 +3075,6 @@ class ReportController extends BaseController
                $item['quantity'] = $detail->quantity;
                $item['total'] = $detail->total;
                $item['product_name'] = $product_name;
-   
                $data[] = $item;
            }
            return response()->json([

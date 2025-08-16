@@ -775,7 +775,7 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import vueEasyPrint from "vue-easy-print";
 import VueBarcode from "vue-barcode";
-import { loadStripe } from "@stripe/stripe-js";
+// import { loadStripe } from "@stripe/stripe-js";
 export default {
   components: {
     vueEasyPrint,
@@ -960,17 +960,13 @@ export default {
   methods: {
 
      async loadStripe_payment() {
-      this.stripe = await loadStripe(`${this.stripe_key}`);
-      const elements = this.stripe.elements();
-
-      this.cardElement = elements.create("card", {
-        classes: {
-          base:
-            "bg-gray-100 rounded border border-gray-300 focus:border-indigo-500 text-base outline-none text-gray-700 p-3 leading-8 transition-colors duration-200 ease-in-out"
-        }
-      });
-
-      this.cardElement.mount("#card-element");
+      // Stripe is disabled
+      console.warn('Stripe is disabled. Credit card payments are not available.');
+      this.makeToast(
+        "warning",
+        "Credit card payments are disabled",
+        "Notice"
+      );
     },
 
 

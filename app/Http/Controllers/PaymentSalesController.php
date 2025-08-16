@@ -148,7 +148,8 @@ class PaymentSalesController extends BaseController
                 if($request['montant'] > 0){
                     // Paying Method credit card
                     if ($request['Reglement'] == 'credit card') {
-                        Stripe\Stripe::setApiKey(config('app.STRIPE_SECRET'));
+                        // Stripe\Stripe::setApiKey(config('app.STRIPE_SECRET'));
+                        // Stripe disabled
 
                         $PaymentWithCreditCard = PaymentWithCreditCard::where('customer_id', $request->client_id)->first();
                         if (!$PaymentWithCreditCard) {
